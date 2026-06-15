@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "tavily-research": {
+      "source": "tavily-ai/skills",
+      "sourceType": "github",
+      "skillPath": "skills/tavily-research/SKILL.md",
+      "computedHash": "58a32caadb010598a2faad7544dedade288c1e81e72aa550b13d83b003264062"
+    }
+  }
+}
