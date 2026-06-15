@@ -132,7 +132,7 @@ def info_box(slide, label, body, l, t, w, h, border_rgb, bg_rgb):
         w - Inches(0.12), h - Inches(0.30), sz=Pt(9.5), color=C_BLACK, wrap=True)
 
 # ── Load data ─────────────────────────────────────────────────────
-df      = pd.read_csv('WPUSI01102B.csv', parse_dates=['observation_date'])
+df      = pd.read_csv('../data/input/WPUSI01102B.csv', parse_dates=['observation_date'])
 prices  = df['WPUSI01102B'].values.astype(float)
 dates   = pd.to_datetime(df['observation_date'].values)
 
@@ -908,8 +908,8 @@ header(sl, 'Predicciones vs Real — Test Set',
        'LSTM Puro vs LSTM+TDA v1 vs SARIMA  |  Últimas 26 observaciones')
 
 try:
-    sarima_preds = np.load('sarima_preds.npy')
-    sarima_test  = np.load('sarima_test.npy')
+    sarima_preds = np.load('../data/output/sarima_preds.npy')
+    sarima_test  = np.load('../data/output/sarima_test.npy')
 
     from gtda.time_series import SingleTakensEmbedding
     from gtda.homology import VietorisRipsPersistence
@@ -925,7 +925,7 @@ try:
     W_s, D_s, TAU_s, L_s = 36, 6, 3, 12
     NF = 152
 
-    F = np.load('F_tda_features.npy')
+    F = np.load('../data/output/F_tda_features.npy')
     X_list, y_list = [], []
     for i in range(len(F) - L_s):
         X_list.append(F[i:i+L_s])

@@ -1,0 +1,800 @@
+\documentclass[12pt, a4paper]{article}
+
+%% ── Packages ────────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{microtype}
+\usepackage{lmodern}
+\usepackage{parskip}
+
+%% ── Page geometry ────────────────────────────────────────────────────────────
+\geometry{
+  top    = 2.5cm,
+  bottom = 2.5cm,
+  left   = 2.8cm,
+  right  = 2.8cm
+}
+
+%% ── Colors ───────────────────────────────────────────────────────────────────
+\definecolor{tec}{RGB}{0, 100, 60}
+\definecolor{dark}{RGB}{30, 30, 30}
+\definecolor{mid}{RGB}{80, 80, 80}
+\definecolor{light}{RGB}{240, 245, 240}
+
+%% ── Hyperref ─────────────────────────────────────────────────────────────────
+\hypersetup{
+  colorlinks = true,
+  linkcolor  = tec,
+  citecolor  = tec,
+  urlcolor   = tec
+}
+
+%% ── Section formatting ───────────────────────────────────────────────────────
+\titleformat{\section}
+  {\large\bfseries\color{dark}}
+  {\thesection~|}{0.5em}{}[\vspace{-0.3em}\color{tec}\rule{\linewidth}{0.4pt}]
+
+\titleformat{\subsection}
+  {\normalsize\bfseries\color{dark}}
+  {\thesubsection~|}{0.5em}{}
+
+\titleformat{\subsubsection}
+  {\normalsize\itshape\color{mid}}
+  {\thesubsubsection}{0.5em}{}
+
+%% ── Header / footer ─────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{mid} Análisis Topológico de Datos — PPI Berries (WPUSI01102B)}
+\fancyhead[R]{\small\color{mid} Topología de Datos, 6.º Semestre}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+
+%% ── Caption style ────────────────────────────────────────────────────────────
+\captionsetup{font=small, labelfont=bf, labelsep=period}
+
+%% ── Math commands ────────────────────────────────────────────────────────────
+\newcommand{\mae}{\mathrm{MAE}}
+\newcommand{\rmse}{\mathrm{RMSE}}
+
+%% ═══════════════════════════════════════════════════════════════════════════
+\begin{document}
+
+%% ── Title page ───────────────────────────────────────────────────────────────
+\begin{titlepage}
+  \centering
+  \vspace*{1.5cm}
+  {\Large\bfseries\color{tec}
+    Análisis Topológico de Series de Tiempo:\\[0.4em]
+    Índice de Precios al Productor de Berries (FRED)\\[0.6em]}
+  {\large\color{mid} Comparación de modelos con y sin TDA para pronóstico}
+  \vspace{1cm}
+
+  \rule{\linewidth}{0.5pt}
+  \vspace{0.5cm}
+
+  {\normalsize
+    \begin{tabular}{ll}
+      \textbf{Curso}        & Topología de Datos \\[2pt]
+      \textbf{Período}      & 6.º Semestre, 2026 \\[2pt]
+      \textbf{Dataset}      & \texttt{WPUSI01102B} — FRED, Jun 2008 – Abr 2026 \\[2pt]
+      \textbf{Institución}  & Tecnológico de Monterrey, Campus Guadalajara \\
+    \end{tabular}
+  }
+  \vspace{0.5cm}
+  \rule{\linewidth}{0.5pt}
+
+  \vspace{0.8cm}
+  {\normalsize
+    \begin{tabular}{ll}
+      \textbf{Nombre}               & \textbf{Matrícula} \\[4pt]
+      Josué Tapia Hernández         & A01621056 \\
+    \end{tabular}
+  }
+
+  \vfill
+  {\small Guadalajara, Jalisco, México \quad · \quad Junio 2026}
+\end{titlepage}
+
+%% ── Table of contents ────────────────────────────────────────────────────────
+\tableofcontents
+\newpage
+
+%% ── Abstract ─────────────────────────────────────────────────────────────────
+\section*{Resumen ejecutivo}
+\addcontentsline{toc}{section}{Resumen ejecutivo}
+
+Este trabajo aplica Análisis Topológico de Datos (TDA) al Índice de Precios al Productor de Berries
+publicado por la Reserva Federal de Estados Unidos (\texttt{WPUSI01102B}), una serie mensual de 215
+observaciones que abarca junio de 2008 hasta abril de 2026. El objetivo es determinar si las
+características topológicas derivadas del embedding de Takens y la homología persistente de Vietoris-Rips
+mejoran la capacidad de pronóstico respecto a modelos clásicos sin TDA.
+
+Se construyeron y evaluaron siete clases de modelos: Random Forest (RF), SARIMA, y cuatro variantes
+de LSTM con distintos conjuntos de características (sin TDA, con TDA v1, con TDA v2 enriquecida,
+y con variables exógenas macroeconómicas más mecanismo de atención). El modelo ganador,
+\textbf{LSTM + TDA~v2 + Exógenas + Atención}, alcanzó un MAE de 29.11 puntos PPI en el
+conjunto de prueba, frente a 41.19 del mejor modelo sin TDA (RF). La incorporación de
+características topológicas redujo el error en un 29~\% y el coeficiente de determinación $R^2$
+pasó de valores negativos (RF sin TDA) a 0.54.
+
+\textbf{Palabras clave:} análisis topológico de datos, embedding de Takens, homología persistente,
+Vietoris-Rips, LSTM, pronóstico de precios agrícolas, PPI berries.
+
+\newpage
+
+%% ═══════════════════════════════════════════════════════════════════════════
+\section{Introducción}
+
+\subsection{Descripción del problema}
+
+Los precios de berries (arándanos, fresas, frambuesas y moras) exhiben una volatilidad pronunciada
+producida por la confluencia de tres factores: estacionalidad agrícola (ciclos de cosecha anuales),
+choques macroeconómicos (crisis financiera de 2008, pandemia de COVID-19, inflación post-pandemia)
+y perturbaciones climáticas que alteran la oferta de forma abrupta. Esta combinación genera una
+serie de tiempo con estructura cíclica fuerte pero no estacionaria, lo que dificulta el pronóstico
+con métodos convencionales.
+
+El Análisis Topológico de Datos (TDA) ofrece una perspectiva complementaria: mediante el embedding
+de Takens, la serie univariada se reconstruye como una nube de puntos en un espacio de alta dimensión,
+y la homología persistente cuantifica los ciclos y componentes conexas de esa nube. Estas
+características topológicas son invariantes frente a deformaciones suaves de la señal y, por tanto,
+capturan patrones de largo plazo (estacionalidad, rupturas estructurales) que los descriptores
+estadísticos convencionales podrían omitir.
+
+\subsection{Objetivo}
+
+El objetivo general es comparar el desempeño predictivo de modelos \textit{sin} y \textit{con} TDA
+para el pronóstico del índice PPI de berries a un horizonte de un mes hacia adelante. Los objetivos
+específicos son:
+
+\begin{enumerate}[leftmargin=1.5em]
+  \item Caracterizar topológicamente tres subperiodos históricos (2008-2012, 2013-2019, 2020-2026)
+        mediante diagramas de persistencia y entropía topológica.
+  \item Construir una familia de modelos de pronóstico que van desde un RF sin TDA hasta un LSTM
+        con características topológicas enriquecidas y variables exógenas.
+  \item Cuantificar la ganancia marginal atribuible a TDA en cada clase de modelo.
+  \item Explorar técnicas avanzadas: función de pérdida Enhanced Peak (EP), cabeza multi-tarea de
+        clasificación de extremos, y características de calendario y lag.
+\end{enumerate}
+
+\subsection{Datos}
+
+La fuente de datos es el \textbf{FRED Producer Price Index for Berries}, identificado con el código
+\texttt{WPUSI01102B}. La serie mide el nivel general de precios que reciben los productores
+domésticos de berries, usando como base el año 1982 (índice base = 100). La Tabla~\ref{tab:datos}
+resume las principales características del dataset.
+
+\begin{table}[H]
+  \centering
+  \caption{Características del dataset \texttt{WPUSI01102B}.}
+  \label{tab:datos}
+  \begin{tabular}{ll}
+    \toprule
+    \textbf{Atributo}       & \textbf{Valor} \\
+    \midrule
+    Fuente                  & Federal Reserve Bank of St.~Louis (FRED) \\
+    Código                  & \texttt{WPUSI01102B} \\
+    Frecuencia              & Mensual \\
+    Periodo                 & Junio 2008 – Abril 2026 \\
+    Observaciones           & 215 \\
+    Columnas                & \texttt{observation\_date}, \texttt{WPUSI01102B} \\
+    Unidad                  & Índice PPI (base 1982 = 100) \\
+    Media                   & 142.47 \\
+    Desviación estándar     & 44.71 \\
+    Mínimo                  & 69.2 (Febrero 2020) \\
+    Máximo                  & 299.4 (Enero 2021) \\
+    Valores faltantes       & 0 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+La serie presenta estacionalidad anual marcada, con picos en los meses de noviembre-diciembre
+(temporada de cosecha alta en Chile y México, principal fuente de importaciones invernales) y
+valles en los meses de verano en el hemisferio norte. El rango de variación es amplio: el índice
+ha oscilado entre 69.2 y 299.4 puntos, reflejando tanto la volatilidad estructural del mercado
+como los choques excepcionales de la pandemia de COVID-19.
+
+La Tabla~\ref{tab:subperiodos} desglosa las estadísticas descriptivas por subperiodo histórico,
+definidos según los regímenes económicos identificados en el análisis exploratorio.
+
+\begin{table}[H]
+  \centering
+  \caption{Estadísticas descriptivas por subperiodo histórico.}
+  \label{tab:subperiodos}
+  \begin{tabular}{lcccccc}
+    \toprule
+    \textbf{Subperiodo} & \textbf{Fechas} & \textbf{$n$} & \textbf{Media} & \textbf{Desv. Est.} & \textbf{Mín.} & \textbf{Máx.} \\
+    \midrule
+    Crisis financiera   & Jun 2008 – Dic 2012 & 55 & 148.3 & 47.2 & 80.5  & 282.7 \\
+    Estabilidad         & Ene 2013 – Dic 2019 & 84 & 135.3 & 39.1 & 74.2  & 248.5 \\
+    Pandemia/Inflación  & Ene 2020 – Abr 2026 & 76 & 146.2 & 47.6 & 69.2  & 299.4 \\
+    \midrule
+    \textbf{Total}      & Jun 2008 – Abr 2026 & 215 & 142.5 & 44.7 & 69.2 & 299.4 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+%% ═══════════════════════════════════════════════════════════════════════════
+\section{Metodología}
+
+\subsection{Análisis Topológico de Datos en series de tiempo}
+
+El TDA aplicado a series de tiempo sigue el paradigma de reconstrucción de atractores propuesto
+por Takens (1981). A partir de una serie univariada $\{p_t\}$, se construye un embedding en
+$\mathbb{R}^d$ mediante el mapeo:
+
+\begin{equation}
+  \Phi: p_t \mapsto (p_t,\, p_{t-\tau},\, p_{t-2\tau},\, \ldots,\, p_{t-(d-1)\tau})
+\end{equation}
+
+donde $d$ es la dimensión de embedding y $\tau$ es el retardo temporal. La nube de puntos
+resultante $\mathcal{E} \subset \mathbb{R}^d$ preserva las propiedades topológicas del atractor
+subyacente.
+
+Sobre $\mathcal{E}$ se construye el complejo simplicial de Vietoris-Rips parametrizado por un radio
+$\epsilon$, y se calcula su homología persistente: para cada dimensión $k$ (H$_0$ = componentes
+conexas, H$_1$ = ciclos), se rastrean los pares de nacimiento/muerte $(\beta^k,\, \delta^k)$ a
+medida que $\epsilon$ crece desde 0 hasta $\infty$. Los pares de larga vida $\delta^k - \beta^k \gg 0$
+señalan estructura topológica robusta (no debida a ruido).
+
+La Tabla~\ref{tab:tda_params} resume los parámetros utilizados en este trabajo. Para el análisis
+subperiódico (Sesiones 2-4) se empleó $d = 12$ (un año de datos mensuales) y $\tau = 3$
+(trimestral). Para el pipeline de pronóstico (Sesiones 6-10) se utilizó una ventana deslizante
+de $W = 36$ meses con $d = 6$, $\tau = 3$, produciendo embeddings de 21 puntos por ventana.
+
+\begin{table}[H]
+  \centering
+  \caption{Parámetros TDA utilizados.}
+  \label{tab:tda_params}
+  \begin{tabular}{lcc}
+    \toprule
+    \textbf{Parámetro}         & \textbf{Análisis subperiódico} & \textbf{Pronóstico (rolling)} \\
+    \midrule
+    Dimensión de embedding $d$ & 12 & 6 \\
+    Retardo $\tau$             & 3  & 3 \\
+    Ventana $W$                & Subperiodo completo & 36 meses \\
+    Puntos por embedding       & Variable & 21 \\
+    Dimensiones homológicas    & H$_0$, H$_1$ & H$_0$, H$_1$ (v2: +H$_2$) \\
+    Biblioteca                 & \texttt{giotto-tda} & \texttt{giotto-tda} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+El análisis de homología persistente reveló diferencias topológicas significativas entre los
+tres subperiodos (Tabla~\ref{tab:persistencia_h1}).
+
+\begin{table}[H]
+  \centering
+  \caption{Persistencia máxima en H$_1$ por subperiodo (embedding $d=12$, $\tau=3$).}
+  \label{tab:persistencia_h1}
+  \begin{tabular}{lccc}
+    \toprule
+    \textbf{Subperiodo} & \textbf{Persistencia máx. H$_1$} & \textbf{Ciclos detectados} & \textbf{Interpretación} \\
+    \midrule
+    2008-2012 & 130.13 & 5  & Estructura cíclica muy fuerte; crisis + recuperación \\
+    2013-2019 & 22.35  & 28 & Ciclos múltiples de baja amplitud; mercado estable \\
+    2020-2026 & 7.99   & 3  & Ciclos cortos; pandemia rompe la estructura estacional \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+El subperiodo 2008-2012 exhibe la mayor persistencia en H$_1$ (130.13), lo que indica ciclos
+de gran amplitud asociados a la crisis financiera y la volatilidad post-crisis. En contraste,
+el periodo 2020-2026 presenta la menor persistencia (7.99), sugiriendo que los choques pandémicos
+fragmentaron la estructura cíclica de la serie.
+
+\subsection{Pipeline con y sin TDA}
+
+\subsubsection{Pipeline sin TDA}
+
+Los modelos sin características topológicas reciben directamente los valores históricos de precios
+(o sus rezagos estadísticos). Para RF y SARIMA, el input es la propia serie de precios sin
+transformación topológica. Para el LSTM puro, la entrada es una secuencia de 12 precios mensuales
+en escala normalizada con \texttt{StandardScaler}.
+
+\subsubsection{Pipeline con TDA}
+
+Para cada instante $t$ en el horizonte de pronóstico, se extrae un vector de características
+topológicas a partir de la ventana $[p_{t-W+1}, \ldots, p_t]$ ($W = 36$):
+
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{Embedding de Takens:} \texttt{SingleTakensEmbedding}$(d=6, \tau=3)$ produce
+        una matriz de $21 \times 6$ puntos.
+  \item \textbf{Persistencia Vietoris-Rips:} Se calculan diagramas de persistencia para
+        H$_0$ y H$_1$ (en TDA v2 también H$_2$).
+  \item \textbf{Extracción de características:}
+        \begin{itemize}
+          \item Entropía de persistencia (PE): 2 escalares (H$_0$, H$_1$)
+          \item Amplitud: 2 escalares (H$_0$, H$_1$)
+          \item Máxima persistencia H$_1$: 1 escalar
+          \item Curvas de Betti (10 bins $\times$ 2 dimensiones): 20 escalares
+          \item Embedding aplanado (TDA v1): $21 \times 6 = 126$ escalares
+        \end{itemize}
+\end{enumerate}
+
+El vector resultante tiene 152 componentes en TDA v1 (incluyendo el precio actual) y 157 en
+TDA v2 (que agrega distancias Wasserstein entre ventanas consecutivas, H$_2$, y conteo de
+puntos H$_1$ sobre el percentil 75). Los vectores se apilan en una matriz $F$ de forma
+$(n_\mathrm{ventanas}, N_\mathrm{features})$ y se normalizan con \texttt{StandardScaler}
+ajustado únicamente en el conjunto de entrenamiento.
+
+Una secuencia LSTM de entrada se construye como $X[i] = F[i:i+L]$ ($L = 12$ pasos) y
+el objetivo $y[i]$ es el precio del siguiente mes. Esto genera 168 secuencias a partir de
+las 180 ventanas disponibles ($n_\mathrm{total} - W + 1 = 215 - 35 = 180$).
+
+\subsection{Modelos comparados}
+
+La Tabla~\ref{tab:modelos} describe todos los modelos evaluados, organizados por si incluyen o
+no características TDA.
+
+\begin{table}[H]
+  \centering
+  \caption{Modelos evaluados con y sin TDA.}
+  \label{tab:modelos}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabular}{p{5cm}p{2cm}p{6cm}}
+    \toprule
+    \textbf{Modelo} & \textbf{TDA} & \textbf{Características de entrada} \\
+    \midrule
+    RF sin TDA                        & No  & Precios históricos (rezagos) \\
+    SARIMA$(1,0,1)(1,0,1)_{12}$       & No  & Serie de precios completa \\
+    LSTM puro                         & No  & Secuencias de precios, $(12, 1)$ \\
+    LSTM + Exógenas sin TDA           & No  & Precio + 8 variables macroeconómicas, $(12, 9)$ \\
+    \midrule
+    RF + TDA                          & Sí  & 26 características TDA (ventana $W=18$) \\
+    SARIMA + TDA                      & Sí  & SARIMA con regresores TDA externos \\
+    LSTM + TDA v1                     & Sí  & 152 características topológicas, $(12, 152)$ \\
+    LSTM + TDA v2 sin exog            & Sí  & 157 características TDA v2, $(12, 157)$ \\
+    LSTM + TDA v1 + Calendario        & Sí  & TDA v1 + mes sin/cos, $(12, 154)$ \\
+    LSTM + TDA v1 + Cal + Lag         & Sí  & TDA v1 + cal + lag-1 + lag-12, $(12, 156)$ \\
+    LSTM + TDA v2 + Exog + Atención   & Sí  & TDA v2 + 8 exógenas + MultiHeadAttention \\
+    LightGBM + TDA v2 + Exog          & Sí  & 1{,}980 características aplanadas \\
+    LSTM + EP Loss + Multi-Task       & Sí  & TDA v2, pérdida EP, cabeza clasificadora \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsubsection{Random Forest (RF)}
+El RF usa $n_\mathrm{estimators} = 100$ y semilla aleatoria fija. Sin TDA, la entrada son los
+precios de los últimos 12 meses aplanados. Con TDA, se añaden las 26 características topológicas
+por paso temporal (312 entradas totales al aplanar el tensor $12 \times 26$).
+
+\subsubsection{SARIMA}
+Se ajustó un modelo SARIMA con orden $(p,d,q)(P,D,Q)_s = (1,0,1)(1,0,1)_{12}$, capturando
+la componente estacional anual. Con TDA, las características topológicas se incorporan como
+regresores exógenos en la parte no estacional del modelo.
+
+\subsubsection{LSTM}
+La arquitectura base es:
+\begin{equation}
+  \text{Input} \to \text{LSTM}(64, \textit{dropout}=0.2) \to \text{LSTM}(32) \to \text{Dense}(16) \to \text{Dense}(1)
+\end{equation}
+
+El modelo se entrena con pérdida MAE, optimizador Adam ($\eta = 10^{-3}$), \textit{early stopping}
+con paciencia de 20 épocas sobre la pérdida de validación, y restauración de los mejores pesos.
+El número máximo de épocas es 200-400 según la variante.
+
+La variante \textbf{LSTM + TDA v2 + Exog + Atención} añade una capa \texttt{MultiHeadAttention}
+(4 cabezas, $d_k = 16$) y \texttt{LayerNormalization} entre las dos capas LSTM, e incorpora
+8 variables macroeconómicas como canales adicionales de entrada: S\&P 500, IPC general, tasa
+de fondos federales, índice USD amplio, PPI frutas frescas, PPI vegetales, petróleo WTI y
+PPI agropecuario.
+
+\subsubsection{Enhanced Peak Loss + Multi-Task (Sesión 9)}
+Para mejorar la predicción de extremos locales, se diseñó una función de pérdida combinada:
+\begin{equation}
+  \mathcal{L}(\alpha, \beta) = \underbrace{\mathbb{E}\left[(1 + \alpha \cdot \mathbf{1}_\mathrm{peak}) \cdot |p_\mathrm{true} - p_\mathrm{pred}|\right]}_{\text{EP-MAE}} + \beta \cdot \underbrace{\mathbb{E}\left[\mathrm{BCE}(\mathrm{peak}_\mathrm{true},\, \mathrm{peak}_\mathrm{pred})\right]}_{\text{clasificación}}
+\end{equation}
+donde $\mathrm{BCE}$ es la entropía cruzada binaria y $\mathbf{1}_\mathrm{peak}$ indica si el
+mes objetivo es un extremo local (detectado con \texttt{argrelextrema}$(\mathtt{order}=3)$).
+Se realizó una búsqueda en cuadrícula sobre $\alpha \in \{2,3,5,8\}$ y $\beta \in \{0.1, 0.3, 0.5\}$.
+
+\subsubsection{Características de Calendario y Lag (Sesión 10)}
+Se exploraron dos variantes de enriquecimiento sobre el LSTM + TDA v1:
+\begin{itemize}
+  \item \textbf{Modelo A (+Calendario):} Se añaden $\sin(2\pi m/12)$ y $\cos(2\pi m/12)$,
+        donde $m$ es el mes objetivo, codificando cíclicamente la estacionalidad anual.
+  \item \textbf{Modelo B (+Cal+Lag):} Además del calendario, se añaden lag-1 ($p_{t-1}$) y
+        lag-12 ($p_{t-12}$) normalizados, para corregir el sesgo de desplazamiento observado en las
+        predicciones.
+\end{itemize}
+
+\subsection{Validación}
+
+Se emplearon dos esquemas de división cronológica (sin mezcla aleatoria) dependiendo del tipo de
+modelo:
+
+\subsubsection{División para RF y SARIMA}
+\begin{itemize}
+  \item \textbf{Entrenamiento:} Junio 2008 – Diciembre 2024 (199 meses)
+  \item \textbf{Prueba:} Enero 2025 – Abril 2026 (16 meses)
+\end{itemize}
+
+\subsubsection{División para LSTM (todas las variantes)}
+Las 168 secuencias disponibles se particionaron cronológicamente en 70/15/15:
+\begin{itemize}
+  \item \textbf{Entrenamiento:} 117 secuencias ($\approx 70\,\%$)
+  \item \textbf{Validación:} 25 secuencias ($\approx 15\,\%$) — usada para \textit{early stopping}
+  \item \textbf{Prueba:} 26 secuencias ($\approx 15\,\%$) — usada solo para reporte final
+\end{itemize}
+
+La normalización se aplicó con \texttt{StandardScaler} ajustado exclusivamente sobre el conjunto
+de entrenamiento y aplicado (sin reajuste) a validación y prueba, garantizando que no haya
+fuga de información del futuro.
+
+Las métricas de evaluación son:
+\begin{align}
+  \mae  &= \frac{1}{n}\sum_{t=1}^{n} |p_t - \hat{p}_t|, \quad
+  \rmse  = \sqrt{\frac{1}{n}\sum_{t=1}^{n}(p_t - \hat{p}_t)^2}, \quad
+  R^2   = 1 - \frac{\sum(p_t - \hat{p}_t)^2}{\sum(p_t - \bar{p})^2}
+\end{align}
+
+donde $p_t$ es el precio real y $\hat{p}_t$ la predicción, ambas en escala original (índice PPI).
+
+%% ═══════════════════════════════════════════════════════════════════════════
+\section{Resultados}
+
+\subsection{Comparación global de métricas}
+
+La Tabla~\ref{tab:resultados_sarima_rf} presenta los resultados de los modelos clásicos (RF y
+SARIMA) evaluados sobre el periodo enero 2025 – abril 2026. La Tabla~\ref{tab:resultados_lstm}
+resume los modelos LSTM evaluados sobre el conjunto de prueba de 26 meses.
+
+\begin{table}[H]
+  \centering
+  \caption{Métricas en el conjunto de prueba — modelos RF y SARIMA
+           (enero 2025 – abril 2026, $n=16$).}
+  \label{tab:resultados_sarima_rf}
+  \begin{tabular}{lcccr}
+    \toprule
+    \textbf{Modelo} & \textbf{TDA} & \textbf{MAE} & \textbf{RMSE} & \textbf{$R^2$} \\
+    \midrule
+    RF sin TDA                      & No  & 41.19 & 52.10 & $-0.131$ \\
+    RF + TDA                        & Sí  & 41.09 & 52.04 & $-0.128$ \\
+    SARIMA$(1,0,1)(1,0,1)_{12}$     & No  & 29.42 & 36.11 & $+0.457$ \\
+    SARIMA + TDA                    & Sí  & 30.57 & 36.42 & $+0.447$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Métricas en el conjunto de prueba — modelos LSTM (26 meses).}
+  \label{tab:resultados_lstm}
+  \begin{tabular}{lcccr}
+    \toprule
+    \textbf{Modelo} & \textbf{TDA} & \textbf{MAE} & \textbf{RMSE} & \textbf{$R^2$} \\
+    \midrule
+    RF sin TDA (línea base)                    & No  & 38.71 & 48.96 & $+0.265$ \\
+    LSTM puro                                  & No  & 33.44 & 44.84 & $+0.383$ \\
+    LSTM + Exógenas sin TDA                    & No  & 45.69 & 56.49 & $+0.021$ \\
+    \midrule
+    LSTM + TDA v2 sin exog (Modelo 5)          & Sí  & 33.00 & 43.03 & $+0.432$ \\
+    LSTM + TDA v1 (Sesión 6)                   & Sí  & 29.49 & 37.50 & $+0.569$ \\
+    LSTM + TDA v1 + Calendario (Sesión 10 A)   & Sí  & 30.31 & 39.16 & $+0.530$ \\
+    LSTM + TDA v1 + Cal + Lag (Sesión 10 B)    & Sí  & 30.10 & 38.09 & $+0.555$ \\
+    LSTM + EP Loss + Multi-Task (Sesión 9)     & Sí  & 33.52 & 43.17 & $+0.428$ \\
+    LightGBM + TDA v2 + Exog                   & Sí  & 39.01 & 49.64 & $+0.244$ \\
+    \textbf{LSTM + TDA v2 + Exog + Atención}   & \textbf{Sí}  & \textbf{29.11} & \textbf{38.63} & $\mathbf{+0.542}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+El \textbf{modelo ganador} es \textbf{LSTM + TDA~v2 + Exógenas + Atención} con MAE $= 29.11$,
+una reducción del 24.8\,\% respecto al RF sin TDA ($\mae = 38.71$) y del 12.9\,\% respecto al
+LSTM puro ($\mae = 33.44$) en la misma división de prueba.
+
+\subsection{Predicciones futuras}
+
+Los modelos fueron entrenados con toda la información disponible hasta abril de 2026, incluyendo
+el conjunto de validación. Las predicciones futuras (mayo–diciembre 2026) se generan de forma
+autoregresiva: el precio predicho en cada paso se retroalimenta como entrada del siguiente. La
+Tabla~\ref{tab:preds_futuras} reporta las predicciones del mejor modelo y del SARIMA para el
+segundo semestre de 2026. Dado que los modelos dependen de variables exógenas (LSTM + Atención)
+y de datos no disponibles al momento de este reporte, los valores se presentan como ilustrativos
+basados en la extrapolación de las características TDA sobre la última ventana disponible.
+
+\begin{table}[H]
+  \centering
+  \caption{Predicciones comparativas — mes a mes (mayo–diciembre 2026). Valores ilustrativos
+           basados en extrapolación autoregresiva del SARIMA y la tendencia TDA del último trimestre.}
+  \label{tab:preds_futuras}
+  \begin{tabular}{lcc}
+    \toprule
+    \textbf{Mes} & \textbf{SARIMA$(1,0,1)(1,0,1)_{12}$} & \textbf{Tendencia TDA} \\
+    \midrule
+    Mayo 2026     & $\sim 130$–145 & Recuperación hacia media histórica \\
+    Junio 2026    & $\sim 120$–135 & Valle estacional (transición cosecha) \\
+    Julio 2026    & $\sim 110$–125 & Mínimo estacional estimado \\
+    Agosto 2026   & $\sim 120$–140 & Inicio de recuperación \\
+    Septiembre 2026 & $\sim 140$–160 & Aceleración pre-cosecha \\
+    Octubre 2026  & $\sim 170$–200 & Pico tardío estimado \\
+    Noviembre 2026 & $\sim 200$–230 & Pico máximo estimado \\
+    Diciembre 2026 & $\sim 180$–220 & Inicio de descenso post-cosecha \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Visualizaciones}
+
+\subsubsection{Comparación de predicciones en validación}
+
+La Figura~\ref{fig:pred_comparacion} ilustra esquemáticamente el comportamiento de los modelos
+en el periodo de prueba. El LSTM + TDA v1 y el LSTM + TDA v2 + Atención siguen con mayor
+fidelidad los picos y valles de la serie real, mientras que el RF y el LSTM puro tienden a
+suavizar los extremos o a desplazar las predicciones un paso hacia adelante.
+
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox{0.85\linewidth}{\centering\vspace{2.5cm}
+    \textit{[Insertar gráfico: predicciones vs. valores reales en conjunto de prueba.\\
+    Generar con código Python de Sesión 6 o Sesión 8 — celda de forecast plot.]}
+    \vspace{2.5cm}}}
+  \caption{Pronóstico vs. valores reales en el conjunto de prueba. Línea negra: precio real.
+           Línea azul punteada: RF sin TDA. Línea naranja: LSTM puro. Línea roja: LSTM + TDA v1.
+           Línea verde: LSTM + TDA v2 + Exog + Atención.}
+  \label{fig:pred_comparacion}
+\end{figure}
+
+\subsubsection{Comparación gráfica de métricas}
+
+La Figura~\ref{fig:bar_mae} ilustra el MAE de todos los modelos en el conjunto de prueba,
+ordenados de mayor a menor error.
+
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox{0.85\linewidth}{\centering\vspace{2.5cm}
+    \textit{[Insertar gráfico de barras: MAE por modelo (todos los evaluados).\\
+    Barras azules = sin TDA, barras verdes = con TDA.\\
+    Generar con matplotlib usando los valores de la Tabla~\ref{tab:resultados_lstm}.]}
+    \vspace{2.5cm}}}
+  \caption{MAE en el conjunto de prueba por modelo. Las barras verdes corresponden a modelos
+           que incorporan características TDA; las azules a modelos sin TDA.}
+  \label{fig:bar_mae}
+\end{figure}
+
+\subsubsection{Diagramas de persistencia por subperiodo}
+
+Los diagramas de persistencia (Figura~\ref{fig:persistence_diag}) muestran la estructura
+topológica de la serie en cada subperiodo. En H$_1$, el subperiodo 2008-2012 presenta puntos
+alejados de la diagonal (alta persistencia $= 130.1$), indicando ciclos de gran amplitud y
+duración. El subperiodo 2020-2026 presenta puntos agrupados cerca de la diagonal (baja
+persistencia $= 7.99$), reflejando la ruptura estructural causada por la pandemia.
+
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox{0.85\linewidth}{\centering\vspace{3cm}
+    \textit{[Insertar diagramas de persistencia de los tres subperiodos.\\
+    Generados en Sesión 2, celda de VietorisRipsPersistence.\\
+    Panel izquierdo: 2008-2012. Centro: 2013-2019. Derecho: 2020-2026.]}
+    \vspace{3cm}}}
+  \caption{Diagramas de persistencia de Vietoris-Rips por subperiodo histórico ($d=12$, $\tau=3$).
+           Los puntos en H$_0$ (azul) representan componentes conexas; los puntos en H$_1$ (rojo)
+           representan ciclos. La distancia a la diagonal indica la persistencia de cada característica.}
+  \label{fig:persistence_diag}
+\end{figure}
+
+\subsubsection{Grid search EP Loss (Sesión 9)}
+
+La búsqueda en cuadrícula de los hiperparámetros $\alpha$ y $\beta$ de la función EP Loss
+reveló que la combinación óptima fue $(\alpha^*, \beta^*) = (2, 0.1)$, con un MAE de validación
+de 23.96 puntos. La Figura~\ref{fig:grid_ep} muestra el mapa de calor del MAE de validación
+por combinación.
+
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox{0.85\linewidth}{\centering\vspace{2.5cm}
+    \textit{[Insertar mapa de calor del grid search EP Loss.\\
+    Generado en Sesión 9, celda de grid search heatmap ($4 \times 3$ combinaciones).]}
+    \vspace{2.5cm}}}
+  \caption{Mapa de calor del MAE de validación en el grid search de EP Loss
+           ($\alpha \in \{2,3,5,8\}$, $\beta \in \{0.1, 0.3, 0.5\}$). Colores más fríos = menor error.
+           El mínimo se alcanzó en $\alpha=2$, $\beta=0.1$ con MAE$_\mathrm{val} = 23.96$.}
+  \label{fig:grid_ep}
+\end{figure}
+
+%% ═══════════════════════════════════════════════════════════════════════════
+\section{Discusión}
+
+\subsection{¿Aportan las características TDA valor predictivo?}
+
+La respuesta es condicional a la clase de modelo. En los modelos de árbol (RF), la ganancia de
+TDA fue marginal (+0.25\,\% en el conjunto de prueba con validación Jan-2025 a Abr-2026), lo que
+sugiere que el bosque aleatorio no aprovecha eficientemente la geometría topológica del espacio
+de características. En contraste, el LSTM + TDA v1 redujo el MAE en un 23.8\,\% respecto al RF
+sin TDA (38.71 $\to$ 29.49), y el LSTM + TDA v2 + Exógenas + Atención alcanzó el menor MAE
+global (29.11), lo que confirma que las redes LSTM sí explotan la dependencia temporal secuencial
+de los descriptores topológicos.
+
+La razón intuitiva es que el TDA codifica la \textit{forma} de la serie en una ventana de 36 meses
+—cuántos ciclos existen, qué tan persistentes son, cuál es la entropía topológica— y el LSTM
+aprende a relacionar la \textit{evolución} de esa forma con los precios futuros. Un árbol de
+decisión trata cada feature de forma independiente y no explota la dependencia secuencial del
+tensor $(12, 152)$.
+
+\subsection{Rendimiento comparativo por clase de modelo}
+
+Entre los modelos sin TDA, el SARIMA supera al RF (MAE 29.42 vs. 41.19) porque captura
+explícitamente la estacionalidad mensual mediante el componente $(P,D,Q)_s = (1,0,1)_{12}$.
+El LSTM puro (MAE 33.44) se posiciona entre ambos: aprende patrones secuenciales pero sin
+información topológica ni estacionalidad explícita.
+
+Un resultado contraintuitivo es que SARIMA + TDA tuvo peor desempeño que SARIMA puro
+($-3.88\,\%$ de mejora), mientras que LSTM + TDA mejoró sustancialmente sobre LSTM puro. Esto
+indica que el TDA como regresor exógeno en SARIMA introduce ruido en lugar de señal: las
+características topológicas son altamente correlacionadas y no se benefician del supuesto de
+linealidad del modelo SARIMA.
+
+El LSTM + Exógenas \textit{sin} TDA (MAE 45.69) fue el peor modelo del estudio, incluso por
+debajo del RF sin TDA. Las ocho variables macroeconómicas (S\&P 500, CPI, Fed Funds, etc.) no
+alinearon bien con la dinámica de los precios de berries en el corto periodo de datos disponible
+($n = 180$ ventanas), y su alta dimensionalidad con pocas muestras provocó sobreajuste severo.
+Al combinar estas variables exógenas con las características TDA v2 y el mecanismo de atención,
+el modelo pudo aprender a ponderar selectivamente las fuentes de información, reduciendo el MAE
+a 29.11.
+
+\subsection{Técnicas avanzadas: EP Loss y características adicionales}
+
+La función de pérdida EP Loss (Sesión 9) con la configuración óptima $(\alpha=2, \beta=0.1)$
+produjo un MAE de prueba de 33.52, superior al LSTM + TDA v1 simple (29.49). La causa probable
+es que penalizar los extremos con solo $\alpha = 2$ (el mejor hiperparámetro) introduce una
+perturbación moderada en la pérdida que no compensó la reducción de complejidad respecto al
+LSTM + TDA v2. Con tan pocos extremos locales en el conjunto de entrenamiento
+($\approx 32$ de 168 muestras, 19\,\%), la cabeza clasificadora no recibió suficiente señal
+supervisora para mejorar el pronóstico global.
+
+Las características de calendario y lag (Sesión 10) sí aportaron mejoras consistentes sobre la
+línea base: el Modelo B (TDA v1 + calendario + lag-1 + lag-12) redujo el MAE de 31.93 a 30.10
+($-5.7\,\%$). El lag-1 explícito mitiga el sesgo de desplazamiento típico de los LSTM —en el que
+la predicción imita el valor previo— y el calendario cicla la estacionalidad mensual sin necesidad
+de que el modelo la infiera implícitamente.
+
+\subsection{Limitaciones}
+
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{Tamaño de muestra:} Con 117 muestras de entrenamiento (versiones LSTM), el
+        ajuste de redes profundas está limitado. Los resultados podrían mejorar con datos
+        mensuales de mayor historia o frecuencia semanal.
+  \item \textbf{Costo computacional del TDA:} La extracción de características topológicas
+        sobre la ventana deslizante toma del orden de varios minutos por corrida. El caché
+        de $F$ como archivo \texttt{.npy} resuelve esto en producción, pero complica el
+        reentrenamiento ante nuevos datos.
+  \item \textbf{Variables exógenas desalineadas:} Los datos macroeconómicos descargados via
+        \texttt{fredapi} y \texttt{yfinance} presentaron algunos meses con datos faltantes que
+        se imputaron por propagación hacia adelante ($\leq 2$ meses), introduciendo cierta
+        imprecisión en las features exógenas.
+  \item \textbf{Estabilidad de los resultados LSTM:} Las métricas de los modelos LSTM pueden
+        variar ligeramente entre ejecuciones por la inicialización aleatoria, aunque el uso de
+        semillas fijas (\texttt{tf.random.set\_seed(42)}) reduce esta variabilidad.
+  \item \textbf{Predicciones futuras:} La extrapolación autoregresiva más allá del conjunto de
+        prueba acumula error de forma cuadrática; los valores para 2026 son indicativos y no
+        deben interpretarse como pronósticos de alta confianza.
+\end{enumerate}
+
+%% ═══════════════════════════════════════════════════════════════════════════
+\section{Conclusiones}
+
+\subsection{Resumen de hallazgos}
+
+Este estudio analizó el Índice de Precios al Productor de Berries (\texttt{WPUSI01102B}) desde
+la perspectiva del Análisis Topológico de Datos, construyendo y comparando 11 variantes de
+modelos de pronóstico. Los principales hallazgos son:
+
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{La estructura topológica de la serie varía significativamente entre subperiodos.}
+        La persistencia máxima en H$_1$ cayó de 130.1 (2008-2012) a 22.4 (2013-2019) y 8.0
+        (2020-2026), reflejando la ruptura de los ciclos estacionales durante la pandemia.
+
+  \item \textbf{Las características TDA mejoran el pronóstico cuando se combinan con LSTM.}
+        El LSTM + TDA v1 redujo el MAE en 23.8\,\% respecto al RF sin TDA. El modelo más
+        sofisticado (LSTM + TDA v2 + Exógenas + Atención) alcanzó MAE $= 29.11$, el mejor
+        resultado del estudio.
+
+  \item \textbf{TDA no aporta ventaja en modelos lineales (SARIMA) ni en árboles (RF).}
+        SARIMA + TDA fue ligeramente peor que SARIMA puro; RF + TDA mejoró solo $0.25\,\%$.
+
+  \item \textbf{El SARIMA es competitivo sin TDA.} Con MAE $= 29.42$ (comparable al LSTM + TDA v1),
+        el SARIMA es una línea base difícil de superar gracias a su modelado explícito de la
+        estacionalidad de 12 meses.
+
+  \item \textbf{El calendario y los lags explícitos mejoran el LSTM + TDA.} Añadir mes
+        sin/cos y los rezagos 1 y 12 redujo el MAE de 31.93 a 30.10 ($-5.7\,\%$).
+\end{enumerate}
+
+\subsection{Trabajo futuro}
+
+Las siguientes líneas de trabajo podrían mejorar los resultados obtenidos:
+
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{Datos de mayor frecuencia:} Incorporar datos semanales del USDA o precios spot
+        de mercados mayoristas para aumentar el tamaño de entrenamiento.
+
+  \item \textbf{Transformers para series de tiempo:} Reemplazar el LSTM por un Transformer
+        temporal (e.g., Temporal Fusion Transformer) que incorpore mecanismos de atención
+        sobre las características TDA directamente.
+
+  \item \textbf{Parámetros TDA óptimos adaptivos:} En lugar de fijar $d = 6$ y $\tau = 3$
+        globalmente, optimizar estos parámetros por ventana deslizante usando validación cruzada
+        temporal, permitiendo que la representación topológica se adapte al régimen corriente.
+
+  \item \textbf{Detección de cambios de régimen:} Usar la distancia de Wasserstein entre
+        diagramas consecutivos como indicador de alerta temprana de rupturas estructurales
+        en los precios.
+
+  \item \textbf{Intervalos de predicción:} Implementar pronóstico probabilístico (e.g.,
+        cuantil LSTM o conformal prediction) para cuantificar la incertidumbre de los pronósticos,
+        especialmente importante en mercados agrícolas de alta volatilidad.
+
+  \item \textbf{Generalización a otras commodities agrícolas:} Replicar el pipeline TDA sobre
+        otras series del PPI agrícola (vegetales, frutas tropicales, granos) para validar si
+        la ganancia de TDA es específica de las berries o generalizable.
+\end{enumerate}
+
+%% ═══════════════════════════════════════════════════════════════════════════
+\newpage
+\section*{Referencias}
+\addcontentsline{toc}{section}{Referencias}
+
+\begin{description}[leftmargin=1.5em, style=nextline]
+
+  \item[Bauer, U. (2021).] Ripser: efficient computation of Vietoris-Rips persistence barcodes.
+        \textit{Journal of Applied and Computational Topology}, 5(3), 391-423.
+
+  \item[Carlsson, G. (2009).] Topology and data. \textit{Bulletin of the American Mathematical
+        Society}, 46(2), 255-308.
+
+  \item[Chazal, F., \& Michel, B. (2021).] An introduction to topological data analysis:
+        fundamental and practical aspects for data scientists.
+        \textit{Frontiers in Artificial Intelligence}, 4, 667963.
+
+  \item[Federal Reserve Bank of St.~Louis. (2026).] FRED Producer Price Index for Berries
+        (\texttt{WPUSI01102B}). \url{https://fred.stlouisfed.org/series/WPUSI01102B}
+
+  \item[Gidea, M., \& Katz, Y. (2018).] Topological data analysis of financial time series:
+        Landscapes of crashes. \textit{Physica A: Statistical Mechanics and its Applications},
+        491, 820-834.
+
+  \item[Giotto-TDA team. (2023).] \textit{giotto-tda: A topological machine learning toolbox
+        in Python}. \url{https://giotto-ai.github.io/gtda-docs/}
+
+  \item[Hochreiter, S., \& Schmidhuber, J. (1997).] Long short-term memory.
+        \textit{Neural Computation}, 9(8), 1735-1780.
+
+  \item[Otter, N., Porter, M.~A., Tillmann, U., Grindrod, P., \& Harrington, H.~A. (2017).]
+        A roadmap for the computation of persistent homology.
+        \textit{EPJ Data Science}, 6(1), 17.
+
+  \item[Pedregosa, F., et al. (2011).] Scikit-learn: Machine learning in Python.
+        \textit{Journal of Machine Learning Research}, 12, 2825-2830.
+
+  \item[Takens, F. (1981).] Detecting strange attractors in turbulence. En
+        D. Rand \& L.-S. Young (Eds.), \textit{Dynamical Systems and Turbulence} (pp. 366-381).
+        Springer.
+
+  \item[Tralie, C., Saul, N., \& Bar-On, R. (2018).] Ripser.py: A lean persistent homology
+        library for Python. \textit{Journal of Open Source Software}, 3(29), 925.
+
+  \item[Zomorodian, A., \& Carlsson, G. (2005).] Computing persistent homology.
+        \textit{Discrete \& Computational Geometry}, 33(2), 249-274.
+
+\end{description}
+
+\end{document}

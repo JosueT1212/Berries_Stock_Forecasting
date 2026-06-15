@@ -28,9 +28,28 @@ Run individual cells sequentially — each notebook session builds state (embedd
 
 Install: `pip install giotto-tda ripser persim scikit-learn plotly tensorflow`
 
+## Folder Structure
+
+```
+notebooks/          — all Sesion-*.ipynb analysis notebooks
+data/
+  input/            — WPUSI01102B.csv (raw FRED data)
+  output/           — .npy feature caches + output CSVs
+presentations/
+  images/           — Tec_Logo.jpeg and slide assets
+  *.pdf/.pptx/.py   — slides and generator scripts
+report/
+  images/           — figures for the LaTeX report
+  reporte_tda_berries.tex
+```
+
+Notebooks use relative paths (`../data/input/`, `../data/output/`). Presentation scripts use the same convention from their directory.
+
 ## Data
 
-`WPUSI01102B.csv` — two columns: `observation_date` (monthly), `WPUSI01102B` (PPI index, base 1982=100). Load with `parse_dates=['observation_date']`.
+`data/input/WPUSI01102B.csv` — two columns: `observation_date` (monthly), `WPUSI01102B` (PPI index, base 1982=100). Load with `parse_dates=['observation_date']`.
+
+Cached features: `data/output/F_tda_features.npy` (152 features), `data/output/F_tda_v2_features.npy` (157 features).
 
 ## Notebook Progression
 
@@ -39,6 +58,11 @@ Install: `pip install giotto-tda ripser persim scikit-learn plotly tensorflow`
 - **Sesion-4-R2-E.ipynb** — Parameter optimization for TDA (dimension `d`, time delay `τ`)
 - **Sesion-5-R2-E.ipynb** — Full period optimization + TDA-enhanced forecasting with RandomForest
 - **Sesion-6-LSTM-TDA.ipynb** — LSTM forecasting with raw Takens embedding + TDA summary features (N_FEATURES=152), MAE loss, RF baseline comparison
+- **Sesion-6-R2-E.ipynb** — Extended RF forecasting with calendar lags
+- **Sesion-7-LSTM-Pure.ipynb** — Pure LSTM baseline (no TDA features)
+- **Sesion-8-LSTM-TDA-Exog.ipynb** — LSTM with TDA v2 exogenous features (157)
+- **Sesion-9-EP-Loss-MultiTask.ipynb** — Multi-task learning with EP loss
+- **Sesion-10-Calendar-Lag.ipynb** — Calendar and lag feature engineering
 
 ## Core TDA Pattern
 

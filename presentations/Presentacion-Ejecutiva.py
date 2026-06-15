@@ -50,7 +50,7 @@ def slide_fig(title=None, subtitle=None):
     return fig
 
 # ── Load data ──────────────────────────────────────────────
-df     = pd.read_csv('WPUSI01102B.csv', parse_dates=['observation_date'])
+df     = pd.read_csv('../data/input/WPUSI01102B.csv', parse_dates=['observation_date'])
 prices = df['WPUSI01102B'].values.astype(float)
 dates  = df['observation_date'].values
 pd_dates = pd.to_datetime(dates)
@@ -651,7 +651,7 @@ with PdfPages(out_path) as pdf:
         EMBED_PTS_s  = W_s - (D_s - 1) * TAU_s
 
         # Load cached TDA features
-        F = np.load('F_tda_features.npy')  # (180, 152)
+        F = np.load('../data/output/F_tda_features.npy')  # (180, 152)
 
         # Build sequences
         X_list, y_list = [], []
