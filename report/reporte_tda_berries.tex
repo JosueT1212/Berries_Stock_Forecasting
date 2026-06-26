@@ -20,49 +20,54 @@
 \usepackage{subcaption}
 \usepackage{enumitem}
 \usepackage{float}
+\usepackage{tabularx}
 \usepackage{microtype}
 \usepackage{lmodern}
 \usepackage{parskip}
 
+%% ── Graphics path ────────────────────────────────────────────────────────────
+\graphicspath{{images/}}
+
 %% ── Page geometry ────────────────────────────────────────────────────────────
 \geometry{
-  top    = 2.5cm,
-  bottom = 2.5cm,
-  left   = 2.8cm,
-  right  = 2.8cm
+  top        = 2.5cm,
+  bottom     = 2.5cm,
+  left       = 2.8cm,
+  right      = 2.8cm,
+  headheight = 1.8cm
 }
 
 %% ── Colors ───────────────────────────────────────────────────────────────────
-\definecolor{tec}{RGB}{0, 100, 60}
+\definecolor{tecblue}{RGB}{0, 82, 165}
 \definecolor{dark}{RGB}{30, 30, 30}
 \definecolor{mid}{RGB}{80, 80, 80}
-\definecolor{light}{RGB}{240, 245, 240}
+\definecolor{light}{RGB}{240, 245, 250}
 
 %% ── Hyperref ─────────────────────────────────────────────────────────────────
 \hypersetup{
   colorlinks = true,
-  linkcolor  = tec,
-  citecolor  = tec,
-  urlcolor   = tec
+  linkcolor  = tecblue,
+  citecolor  = tecblue,
+  urlcolor   = tecblue
 }
 
 %% ── Section formatting ───────────────────────────────────────────────────────
 \titleformat{\section}
-  {\large\bfseries\color{dark}}
-  {\thesection~|}{0.5em}{}[\vspace{-0.3em}\color{tec}\rule{\linewidth}{0.4pt}]
+  {\large\bfseries\color{tecblue}}
+  {\thesection~|}{0.5em}{}[\vspace{-0.3em}\color{tecblue}\rule{\linewidth}{0.4pt}]
 
 \titleformat{\subsection}
-  {\normalsize\bfseries\color{dark}}
+  {\normalsize\bfseries\color{tecblue}}
   {\thesubsection~|}{0.5em}{}
 
 \titleformat{\subsubsection}
-  {\normalsize\itshape\color{mid}}
+  {\normalsize\itshape\color{tecblue}}
   {\thesubsubsection}{0.5em}{}
 
 %% ── Header / footer ─────────────────────────────────────────────────────────
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\small\color{mid} Análisis Topológico de Datos — PPI Berries (WPUSI01102B)}
+\fancyhead[L]{\includegraphics[height=1.6cm]{Tec_logo.png}}
 \fancyhead[R]{\small\color{mid} Topología de Datos, 6.º Semestre}
 \fancyfoot[C]{\small\thepage}
 \renewcommand{\headrulewidth}{0.3pt}
@@ -80,37 +85,52 @@
 %% ── Title page ───────────────────────────────────────────────────────────────
 \begin{titlepage}
   \centering
-  \vspace*{1.5cm}
-  {\Large\bfseries\color{tec}
+  \vspace*{1cm}
+
+  {\LARGE\bfseries
     Análisis Topológico de Series de Tiempo:\\[0.4em]
-    Índice de Precios al Productor de Berries (FRED)\\[0.6em]}
-  {\large\color{mid} Comparación de modelos con y sin TDA para pronóstico}
-  \vspace{1cm}
+    Índice de Precios al Productor de Berries (FRED)}
 
-  \rule{\linewidth}{0.5pt}
-  \vspace{0.5cm}
+  \vspace{2cm}
 
-  {\normalsize
-    \begin{tabular}{ll}
-      \textbf{Curso}        & Topología de Datos \\[2pt]
-      \textbf{Período}      & 6.º Semestre, 2026 \\[2pt]
-      \textbf{Dataset}      & \texttt{WPUSI01102B} — FRED, Jun 2008 – Abr 2026 \\[2pt]
-      \textbf{Institución}  & Tecnológico de Monterrey, Campus Guadalajara \\
-    \end{tabular}
-  }
-  \vspace{0.5cm}
-  \rule{\linewidth}{0.5pt}
+  \includegraphics[width=0.48\textwidth]{Tec_logo.png}
+
+  \vspace{2cm}
+
+  {\normalsize\itshape
+    Aplicación del embedding de Takens y homología persistente de Vietoris-Rips\\[0.2em]
+    para el pronóstico del PPI de berries (\texttt{WPUSI01102B}, Jun 2008–Abr 2026)}
+
+  \vspace{0.6cm}
+
+  {\normalsize\bfseries Topología de Datos}\\[0.2em]
+  {\normalsize 14/Junio/2026}
 
   \vspace{0.8cm}
+
+  {\normalsize\bfseries Equipo 1}
+
+  \vspace{0.3cm}
+
   {\normalsize
-    \begin{tabular}{ll}
-      \textbf{Nombre}               & \textbf{Matrícula} \\[4pt]
-      Josué Tapia Hernández         & A01621056 \\
+    \begin{tabular}{cc}
+      \textbf{Nombre completo}          & \textbf{Matrícula} \\[3pt]
+      \hline\\[-6pt]
+      Andrés Martínez Almazán           & A01621042 \\
+      Josué Tapia Hernández             & A01621056 \\
+      José Emilio Martínez Hernández    & A01403100 \\
+      Diego Arechiga Bonilla            & A01621045 \\
     \end{tabular}
   }
 
+  \vspace{0.6cm}
+
+  {\normalsize Instructor: Dr.\ Hugo García Tecocoatzi}\\[0.2em]
+  {\normalsize Tecnológico de Monterrey, Campus Guadalajara}
+
   \vfill
-  {\small Guadalajara, Jalisco, México \quad · \quad Junio 2026}
+
+  {\normalsize Guadalajara, Jalisco, México \quad · \quad Junio 2026}
 \end{titlepage}
 
 %% ── Table of contents ────────────────────────────────────────────────────────
@@ -118,26 +138,6 @@
 \newpage
 
 %% ── Abstract ─────────────────────────────────────────────────────────────────
-\section*{Resumen ejecutivo}
-\addcontentsline{toc}{section}{Resumen ejecutivo}
-
-Este trabajo aplica Análisis Topológico de Datos (TDA) al Índice de Precios al Productor de Berries
-publicado por la Reserva Federal de Estados Unidos (\texttt{WPUSI01102B}), una serie mensual de 215
-observaciones que abarca junio de 2008 hasta abril de 2026. El objetivo es determinar si las
-características topológicas derivadas del embedding de Takens y la homología persistente de Vietoris-Rips
-mejoran la capacidad de pronóstico respecto a modelos clásicos sin TDA.
-
-Se construyeron y evaluaron siete clases de modelos: Random Forest (RF), SARIMA, y cuatro variantes
-de LSTM con distintos conjuntos de características (sin TDA, con TDA v1, con TDA v2 enriquecida,
-y con variables exógenas macroeconómicas más mecanismo de atención). El modelo ganador,
-\textbf{LSTM + TDA~v2 + Exógenas + Atención}, alcanzó un MAE de 29.11 puntos PPI en el
-conjunto de prueba, frente a 41.19 del mejor modelo sin TDA (RF). La incorporación de
-características topológicas redujo el error en un 29~\% y el coeficiente de determinación $R^2$
-pasó de valores negativos (RF sin TDA) a 0.54.
-
-\textbf{Palabras clave:} análisis topológico de datos, embedding de Takens, homología persistente,
-Vietoris-Rips, LSTM, pronóstico de precios agrícolas, PPI berries.
-
 \newpage
 
 %% ═══════════════════════════════════════════════════════════════════════════
@@ -212,6 +212,15 @@ valles en los meses de verano en el hemisferio norte. El rango de variación es 
 ha oscilado entre 69.2 y 299.4 puntos, reflejando tanto la volatilidad estructural del mercado
 como los choques excepcionales de la pandemia de COVID-19.
 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{serie_temporal_subperiodos.png}
+  \caption{Serie temporal del PPI de Berries (WPUSI01102B) con los tres subperiodos históricos
+           sombreados. Rojo: crisis financiera 2008-2012. Verde: estabilidad 2013-2019.
+           Azul: pandemia e inflación 2020-2026.}
+  \label{fig:serie_temporal}
+\end{figure}
+
 La Tabla~\ref{tab:subperiodos} desglosa las estadísticas descriptivas por subperiodo histórico,
 definidos según los regímenes económicos identificados en el análisis exploratorio.
 
@@ -285,15 +294,15 @@ tres subperiodos (Tabla~\ref{tab:persistencia_h1}).
   \centering
   \caption{Persistencia máxima en H$_1$ por subperiodo (embedding $d=12$, $\tau=3$).}
   \label{tab:persistencia_h1}
-  \begin{tabular}{lccc}
+  \begin{tabularx}{\linewidth}{lccX}
     \toprule
-    \textbf{Subperiodo} & \textbf{Persistencia máx. H$_1$} & \textbf{Ciclos detectados} & \textbf{Interpretación} \\
+    \textbf{Subperiodo} & \textbf{Pers. máx. H$_1$} & \textbf{Ciclos} & \textbf{Interpretación} \\
     \midrule
     2008-2012 & 130.13 & 5  & Estructura cíclica muy fuerte; crisis + recuperación \\
     2013-2019 & 22.35  & 28 & Ciclos múltiples de baja amplitud; mercado estable \\
     2020-2026 & 7.99   & 3  & Ciclos cortos; pandemia rompe la estructura estacional \\
     \bottomrule
-  \end{tabular}
+  \end{tabularx}
 \end{table}
 
 El subperiodo 2008-2012 exhibe la mayor persistencia en H$_1$ (130.13), lo que indica ciclos
@@ -350,7 +359,7 @@ no características TDA.
   \caption{Modelos evaluados con y sin TDA.}
   \label{tab:modelos}
   \renewcommand{\arraystretch}{1.2}
-  \begin{tabular}{p{5cm}p{2cm}p{6cm}}
+  \begin{tabularx}{\linewidth}{p{4.2cm}p{1.3cm}X}
     \toprule
     \textbf{Modelo} & \textbf{TDA} & \textbf{Características de entrada} \\
     \midrule
@@ -369,7 +378,7 @@ no características TDA.
     LightGBM + TDA v2 + Exog          & Sí  & 1{,}980 características aplanadas \\
     LSTM + EP Loss + Multi-Task       & Sí  & TDA v2, pérdida EP, cabeza clasificadora \\
     \bottomrule
-  \end{tabular}
+  \end{tabularx}
 \end{table}
 
 \subsubsection{Random Forest (RF)}
@@ -544,13 +553,10 @@ suavizar los extremos o a desplazar las predicciones un paso hacia adelante.
 
 \begin{figure}[H]
   \centering
-  \fbox{\parbox{0.85\linewidth}{\centering\vspace{2.5cm}
-    \textit{[Insertar gráfico: predicciones vs. valores reales en conjunto de prueba.\\
-    Generar con código Python de Sesión 6 o Sesión 8 — celda de forecast plot.]}
-    \vspace{2.5cm}}}
-  \caption{Pronóstico vs. valores reales en el conjunto de prueba. Línea negra: precio real.
-           Línea azul punteada: RF sin TDA. Línea naranja: LSTM puro. Línea roja: LSTM + TDA v1.
-           Línea verde: LSTM + TDA v2 + Exog + Atención.}
+  \includegraphics[width=\linewidth]{sesion8_ablacion_forecast.png}
+  \caption{Pronóstico vs. valores reales en el conjunto de prueba (estudio de ablación, Sesión 8).
+           Línea negra: precio real. Las demás líneas muestran las predicciones de los modelos
+           LSTM puro, LSTM+TDA v2 sin exógenas, LSTM+Exógenas sin TDA y LSTM+TDA v2+Exog+Atención.}
   \label{fig:pred_comparacion}
 \end{figure}
 
@@ -561,13 +567,11 @@ ordenados de mayor a menor error.
 
 \begin{figure}[H]
   \centering
-  \fbox{\parbox{0.85\linewidth}{\centering\vspace{2.5cm}
-    \textit{[Insertar gráfico de barras: MAE por modelo (todos los evaluados).\\
-    Barras azules = sin TDA, barras verdes = con TDA.\\
-    Generar con matplotlib usando los valores de la Tabla~\ref{tab:resultados_lstm}.]}
-    \vspace{2.5cm}}}
-  \caption{MAE en el conjunto de prueba por modelo. Las barras verdes corresponden a modelos
-           que incorporan características TDA; las azules a modelos sin TDA.}
+  \includegraphics[width=\linewidth]{comparacion_mae_barras.png}
+  \caption{MAE en el conjunto de prueba para todos los modelos evaluados, ordenados de mayor
+           a menor error. Las barras verdes corresponden a modelos que incorporan características
+           TDA; las barras azules a modelos sin TDA. La línea roja punteada marca el MAE del
+           modelo ganador (LSTM + TDA v2 + Exog + Atención, MAE = 29.11).}
   \label{fig:bar_mae}
 \end{figure}
 
@@ -581,15 +585,43 @@ persistencia $= 7.99$), reflejando la ruptura estructural causada por la pandemi
 
 \begin{figure}[H]
   \centering
-  \fbox{\parbox{0.85\linewidth}{\centering\vspace{3cm}
-    \textit{[Insertar diagramas de persistencia de los tres subperiodos.\\
-    Generados en Sesión 2, celda de VietorisRipsPersistence.\\
-    Panel izquierdo: 2008-2012. Centro: 2013-2019. Derecho: 2020-2026.]}
-    \vspace{3cm}}}
+  \includegraphics[width=\linewidth]{diagramas_persistencia_detalle.png}
   \caption{Diagramas de persistencia de Vietoris-Rips por subperiodo histórico ($d=12$, $\tau=3$).
-           Los puntos en H$_0$ (azul) representan componentes conexas; los puntos en H$_1$ (rojo)
-           representan ciclos. La distancia a la diagonal indica la persistencia de cada característica.}
+           Los puntos en H$_0$ representan componentes conexas; los puntos en H$_1$ representan
+           ciclos. La distancia a la diagonal indica la persistencia de cada característica topológica.
+           El subperiodo 2008-2012 presenta la mayor dispersión en H$_1$ (persistencia máx. = 130.1).}
   \label{fig:persistence_diag}
+\end{figure}
+
+\subsubsection{Métricas comparativas (MAE, RMSE, $R^2$)}
+
+La Figura~\ref{fig:metricas3} presenta las tres métricas de evaluación para los modelos
+representativos de cada familia, mostrando la ganancia consistente de los modelos con TDA en MAE
+y RMSE, y el salto más pronunciado en $R^2$ (de valores negativos para RF sin TDA a 0.57 para
+LSTM + TDA v1).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{metricas_comparacion.png}
+  \caption{Comparación de MAE, RMSE y $R^2$ para los modelos más representativos. Barras verdes:
+           modelos con TDA. Barras azules: modelos sin TDA. En $R^2$, valores negativos indican
+           que el modelo es peor que predecir la media de la serie.}
+  \label{fig:metricas3}
+\end{figure}
+
+\subsubsection{Calendario y lag — Sesión 10}
+
+La Figura~\ref{fig:sesion10} muestra el impacto de agregar características de calendario y rezago
+sobre el LSTM + TDA v1. El Modelo B (calendario + lag) logra seguir mejor los puntos de inflexión
+estacionales respecto a la línea base.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{sesion10_forecast.png}
+  \caption{Pronóstico en el conjunto de prueba para los tres modelos de Sesión 10: Baseline TDA v1
+           (152 características), Modelo A (+calendario, 154) y Modelo B (+calendario+lag, 156).
+           El Modelo B alcanza MAE = 30.10, mejora del 5.7\,\% sobre la línea base (31.93).}
+  \label{fig:sesion10}
 \end{figure}
 
 \subsubsection{Grid search EP Loss (Sesión 9)}
@@ -601,13 +633,11 @@ por combinación.
 
 \begin{figure}[H]
   \centering
-  \fbox{\parbox{0.85\linewidth}{\centering\vspace{2.5cm}
-    \textit{[Insertar mapa de calor del grid search EP Loss.\\
-    Generado en Sesión 9, celda de grid search heatmap ($4 \times 3$ combinaciones).]}
-    \vspace{2.5cm}}}
+  \includegraphics[width=0.7\linewidth]{sesion9_grid_heatmap.png}
   \caption{Mapa de calor del MAE de validación en el grid search de EP Loss
-           ($\alpha \in \{2,3,5,8\}$, $\beta \in \{0.1, 0.3, 0.5\}$). Colores más fríos = menor error.
-           El mínimo se alcanzó en $\alpha=2$, $\beta=0.1$ con MAE$_\mathrm{val} = 23.96$.}
+           ($\alpha \in \{2,3,5,8\}$, $\beta \in \{0.1, 0.3, 0.5\}$, 12 combinaciones).
+           Colores más fríos (verdes) indican menor error. El mínimo se alcanzó en
+           $\alpha=2$, $\beta=0.1$ con MAE$_\mathrm{val} = 23.96$.}
   \label{fig:grid_ep}
 \end{figure}
 
@@ -748,9 +778,15 @@ Las siguientes líneas de trabajo podrían mejorar los resultados obtenidos:
         la ganancia de TDA es específica de las berries o generalizable.
 \end{enumerate}
 
+El código fuente completo, los notebooks de análisis y los datos de este proyecto están
+disponibles públicamente en:
+\begin{center}
+  \url{https://github.com/JosueT1212/Berries_Stock_Forecasting}
+\end{center}
+
 %% ═══════════════════════════════════════════════════════════════════════════
 \newpage
-\section*{Referencias}
+\section*{\color{tecblue}Referencias}
 \addcontentsline{toc}{section}{Referencias}
 
 \begin{description}[leftmargin=1.5em, style=nextline]
@@ -788,6 +824,10 @@ Las siguientes líneas de trabajo podrían mejorar los resultados obtenidos:
   \item[Takens, F. (1981).] Detecting strange attractors in turbulence. En
         D. Rand \& L.-S. Young (Eds.), \textit{Dynamical Systems and Turbulence} (pp. 366-381).
         Springer.
+
+  \item[Tapia Hernández, J. (2026).] \textit{Berries Stock Forecasting — notebooks y datos}.
+        Tecnológico de Monterrey, Campus Guadalajara.
+        \url{https://github.com/JosueT1212/Berries_Stock_Forecasting}
 
   \item[Tralie, C., Saul, N., \& Bar-On, R. (2018).] Ripser.py: A lean persistent homology
         library for Python. \textit{Journal of Open Source Software}, 3(29), 925.
