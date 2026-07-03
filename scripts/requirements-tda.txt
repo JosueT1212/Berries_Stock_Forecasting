@@ -1,0 +1,4 @@
+-r requirements.txt
+giotto-tda==0.6.0
+ripser==0.6.10
+persim==0.3.5
