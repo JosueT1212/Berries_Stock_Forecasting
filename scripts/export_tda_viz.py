@@ -18,7 +18,7 @@ SUBPERIODS = [
 ]
 
 
-def _subperiod_tda(prices: np.ndarray) -> dict:
+def _subperiod_tda(prices: np.ndarray, dates: np.ndarray) -> dict:
     ste = SingleTakensEmbedding(parameters_type="fixed", dimension=EMBEDDING_DIM, time_delay=TIME_DELAY)
     embedding = ste.fit_transform(prices)
 
@@ -40,10 +40,14 @@ def _subperiod_tda(prices: np.ndarray) -> dict:
         pad = np.zeros((embedding_3d.shape[0], 3 - n_components))
         embedding_3d = np.hstack([embedding_3d, pad])
 
+    embedding_dates = [np.datetime_as_string(d, unit="D") for d in dates[: embedding.shape[0]]]
+
     return {
         "persistence_diagram": persistence_diagram,
         "max_h1_persistence": max_h1,
         "embedding_3d": embedding_3d.tolist(),
+        "dates": embedding_dates,
+        "prices": prices.tolist(),
     }
 
 
@@ -57,7 +61,8 @@ def build_tda_export(csv_path: str) -> dict:
     for sp in SUBPERIODS:
         mask = (dates >= np.datetime64(sp["start"])) & (dates <= np.datetime64(sp["end"]))
         sp_prices = prices[mask]
-        tda = _subperiod_tda(sp_prices)
+        sp_dates = dates[mask]
+        tda = _subperiod_tda(sp_prices, sp_dates)
         subperiods_out.append({
             "id": sp["id"],
             "label": sp["label"],

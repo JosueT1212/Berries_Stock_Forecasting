@@ -27,3 +27,6 @@ def test_build_tda_export_has_all_subperiods(tmp_path):
         assert isinstance(sp["max_h1_persistence"], float)
         assert all(len(pt) == 3 for pt in sp["embedding_3d"])
         assert all(set(d.keys()) == {"birth", "death", "dim"} for d in sp["persistence_diagram"])
+        assert len(sp["dates"]) == len(sp["embedding_3d"])
+        assert len(sp["prices"]) == sp["n_months"]
+        assert all(isinstance(d, str) for d in sp["dates"])
