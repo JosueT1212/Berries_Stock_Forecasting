@@ -18,16 +18,24 @@ def fetch_new_observations(csv_path: str, api_key: str, series_id: str = "WPUSI0
     header, existing_rows = rows[0], rows[1:]
     existing_dates = {row[0] for row in existing_rows}
 
-    response = requests.get(
-        FRED_BASE_URL,
-        params={
-            "series_id": series_id,
-            "api_key": api_key,
-            "file_type": "json",
-        },
-        timeout=30,
-    )
-    response.raise_for_status()
+    try:
+        response = requests.get(
+            FRED_BASE_URL,
+            params={
+                "series_id": series_id,
+                "api_key": api_key,
+                "file_type": "json",
+            },
+            timeout=30,
+        )
+        response.raise_for_status()
+    except requests.HTTPError as exc:
+        # Scrub the URL/query string (which embeds api_key in cleartext) from
+        # the error message before it can be printed or logged anywhere.
+        status = exc.response.status_code if exc.response is not None else "unknown"
+        raise RuntimeError(f"FRED API request failed: HTTP {status}") from None
+    except requests.RequestException:
+        raise RuntimeError("FRED API request failed: connection error") from None
     observations = response.json()["observations"]
 
     new_rows = []

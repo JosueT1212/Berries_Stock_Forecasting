@@ -20,6 +20,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r scripts/requirements.txt
 
+      - name: Run tests
+        run: pytest scripts/ -q
+
       - name: Fetch latest FRED data
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}

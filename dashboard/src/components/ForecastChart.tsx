@@ -26,7 +26,15 @@ function buildRows(data: ForecastData): ChartRow[] {
     ciBase: f.lower,
     ciBand: f.upper - f.lower,
   }));
-  return [...historyRows.slice(-36), ...forecastRows];
+  const trimmedHistory = historyRows.slice(-36);
+  // Bridge the seam: give the last history point a forecast value equal to
+  // the last actual so the "Actual" and "SARIMA Forecast" lines connect
+  // instead of rendering as two visually disconnected segments.
+  const lastHistoryRow = trimmedHistory[trimmedHistory.length - 1];
+  if (lastHistoryRow) {
+    lastHistoryRow.forecast = lastHistoryRow.actual;
+  }
+  return [...trimmedHistory, ...forecastRows];
 }
 
 export default function ForecastChart({ data }: { data: ForecastData }) {
