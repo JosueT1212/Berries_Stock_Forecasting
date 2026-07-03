@@ -78,3 +78,18 @@ df = pd.read_csv('data/input/WPUSI01102B.csv', parse_dates=['observation_date'])
 ```
 
 Cached features: `F_tda_features.npy` (152 features), `F_tda_v2_features.npy` (157 features).
+
+## Live Dashboard
+
+A React dashboard (`dashboard/`) is deployed on Vercel and auto-updates monthly via
+`.github/workflows/update-forecast.yml`, which pulls the newest FRED observation and
+refits the SARIMA model.
+
+**Setup:**
+1. Get a free FRED API key: https://fred.stlouisfed.org/docs/api/api_key.html
+2. Add it as a GitHub Actions secret named `FRED_API_KEY` (repo Settings → Secrets and variables → Actions).
+3. Link `dashboard/` as the root directory of a Vercel project for deployment.
+
+TDA visualizations (`dashboard/public/data/tda.json`) are regenerated manually with
+`python scripts/export_tda_viz.py` when the underlying analysis changes — they are not
+part of the monthly cron.
