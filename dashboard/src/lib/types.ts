@@ -42,9 +42,19 @@ export interface Subperiod {
   persistence_diagram: PersistencePoint[];
   max_h1_persistence: number;
   embedding_3d: [number, number, number][];
+  dates: string[];
+  prices: number[];
 }
 
 export interface TdaData {
   generated_at: string;
   subperiods: Subperiod[];
+}
+
+export interface PredictionRecord {
+  target_date: string;
+  made_on: string;
+  predicted: number;
+  lower: number;
+  upper: number;
 }

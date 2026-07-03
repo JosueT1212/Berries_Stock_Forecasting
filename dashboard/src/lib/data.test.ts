@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { loadForecast, loadLeaderboard, loadTda } from "./data";
+import { loadForecast, loadLeaderboard, loadTda, loadPredictionTrackRecord } from "./data";
 
 function mockFetchOnce(payload: unknown, ok = true) {
   vi.stubGlobal(
@@ -34,5 +34,13 @@ describe("data loaders", () => {
     mockFetchOnce(payload);
     const result = await loadTda();
     expect(result.subperiods).toEqual([]);
+  });
+
+  it("loadPredictionTrackRecord fetches and parses prediction_track_record.json", async () => {
+    const payload = [{ target_date: "2026-05-01", made_on: "2026-04-05", predicted: 149.1, lower: 87.2, upper: 210.9 }];
+    mockFetchOnce(payload);
+    const result = await loadPredictionTrackRecord();
+    expect(result).toEqual(payload);
+    expect(fetch).toHaveBeenCalledWith("/data/prediction_track_record.json");
   });
 });
