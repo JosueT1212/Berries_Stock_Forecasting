@@ -35,6 +35,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/input/WPUSI01102B.csv dashboard/public/data/forecast.json dashboard/public/data/leaderboard.json
+          git add data/input/WPUSI01102B.csv dashboard/public/data/forecast.json dashboard/public/data/leaderboard.json dashboard/public/data/prediction_track_record.json
           git diff --cached --quiet || git commit -m "chore: monthly forecast update"
           git push
