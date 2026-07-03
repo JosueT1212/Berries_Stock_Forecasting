@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0b0e14;
+  --color-bg-light: #f7f8fa;
+  --color-accent: #6366f1;
+  --color-accent-warm: #f59e0b;
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  @apply bg-white text-gray-900 dark:bg-bg dark:text-gray-100;
+  font-family: "Inter", system-ui, sans-serif;
+}
