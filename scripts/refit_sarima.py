@@ -17,6 +17,8 @@ FROZEN_MODELS = [
     {"name": "RF + TDA", "mae": 41.0917, "rmse": 52.0403, "r2": -0.1284, "improvement_vs_baseline": 0.25, "live": False},
     {"name": "SARIMA", "mae": 29.4225, "rmse": 36.1094, "r2": 0.4567, "improvement_vs_baseline": 28.58, "live": True},
     {"name": "SARIMA+TDA", "mae": 30.5655, "rmse": 36.4237, "r2": 0.4472, "improvement_vs_baseline": 25.80, "live": False},
+    {"name": "LSTM+TDA", "mae": 29.4890, "rmse": 37.5017, "r2": 0.5687, "improvement_vs_baseline": 28.41, "live": False},
+    {"name": "LSTM+TDA v2+Exog+Attention", "mae": 29.1069, "rmse": 38.6295, "r2": 0.5424, "improvement_vs_baseline": 29.34, "live": False},
 ]
 
 

@@ -62,3 +62,31 @@ def test_update_leaderboard_preserves_frozen_rows_on_update(tmp_path):
     assert rf_row["mae"] == 41.1941  # untouched
     sarima_row = next(m for m in result["models"] if m["name"] == "SARIMA")
     assert sarima_row["mae"] == 10.0
+
+
+def test_frozen_models_includes_lstm_tda_variants():
+    names = {m["name"] for m in FROZEN_MODELS}
+    assert "LSTM+TDA" in names
+    assert "LSTM+TDA v2+Exog+Attention" in names
+
+    lstm_tda = next(m for m in FROZEN_MODELS if m["name"] == "LSTM+TDA")
+    assert lstm_tda["mae"] == 29.4890
+    assert lstm_tda["rmse"] == 37.5017
+    assert lstm_tda["r2"] == 0.5687
+    assert lstm_tda["improvement_vs_baseline"] == 28.41
+    assert lstm_tda["live"] is False
+
+    lstm_tda_v2 = next(m for m in FROZEN_MODELS if m["name"] == "LSTM+TDA v2+Exog+Attention")
+    assert lstm_tda_v2["mae"] == 29.1069
+    assert lstm_tda_v2["rmse"] == 38.6295
+    assert lstm_tda_v2["r2"] == 0.5424
+    assert lstm_tda_v2["improvement_vs_baseline"] == 29.34
+    assert lstm_tda_v2["live"] is False
+
+
+def test_update_leaderboard_sorts_lstm_tda_v2_as_best_mae():
+    # LSTM+TDA v2+Exog+Attention (mae 29.1069) should be the lowest-MAE row
+    # once SARIMA's live metrics (mae ~29.42, from the frozen baseline) are applied.
+    result = update_leaderboard("/nonexistent/leaderboard.json", {"mae": 29.4225, "rmse": 36.1094, "r2": 0.4567})
+    best = min(result["models"], key=lambda m: m["mae"])
+    assert best["name"] == "LSTM+TDA v2+Exog+Attention"
