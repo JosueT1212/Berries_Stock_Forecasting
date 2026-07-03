@@ -112,11 +112,37 @@ def update_leaderboard(leaderboard_path: str, live_metrics: dict) -> dict:
     }
 
 
+def append_prediction_record(record_path: str, forecast_point: dict, made_on: str) -> list[dict]:
+    if os.path.exists(record_path):
+        with open(record_path) as f:
+            records = json.load(f)  # raises json.JSONDecodeError on corrupted content, by design
+    else:
+        records = []
+
+    target_date = forecast_point["date"]
+    if any(r["target_date"] == target_date for r in records):
+        return records  # idempotent: first prediction for a month wins, reruns don't overwrite
+
+    records.append({
+        "target_date": target_date,
+        "made_on": made_on,
+        "predicted": forecast_point["value"],
+        "lower": forecast_point["lower"],
+        "upper": forecast_point["upper"],
+    })
+
+    with open(record_path, "w") as f:
+        json.dump(records, f, indent=2)
+
+    return records
+
+
 def main() -> int:
     repo_root = os.path.join(os.path.dirname(__file__), "..")
     csv_path = os.path.abspath(os.path.join(repo_root, "data", "input", "WPUSI01102B.csv"))
     forecast_path = os.path.abspath(os.path.join(repo_root, "dashboard", "public", "data", "forecast.json"))
     leaderboard_path = os.path.abspath(os.path.join(repo_root, "dashboard", "public", "data", "leaderboard.json"))
+    record_path = os.path.abspath(os.path.join(repo_root, "dashboard", "public", "data", "prediction_track_record.json"))
 
     try:
         forecast = compute_forecast(csv_path)
@@ -131,7 +157,10 @@ def main() -> int:
     with open(leaderboard_path, "w") as f:
         json.dump(leaderboard, f, indent=2)
 
-    print(f"Wrote {forecast_path} and {leaderboard_path}")
+    made_on = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    append_prediction_record(record_path, forecast["forecast"][0], made_on=made_on)
+
+    print(f"Wrote {forecast_path}, {leaderboard_path}, and {record_path}")
     return 0
 
 
