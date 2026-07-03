@@ -1,0 +1,37 @@
+{
+  "last_updated": "2026-07-03T02:03:07Z",
+  "models": [
+    {
+      "name": "RF Sin TDA",
+      "mae": 41.1941,
+      "rmse": 52.1049,
+      "r2": -0.1312,
+      "improvement_vs_baseline": null,
+      "live": false
+    },
+    {
+      "name": "RF + TDA",
+      "mae": 41.0917,
+      "rmse": 52.0403,
+      "r2": -0.1284,
+      "improvement_vs_baseline": 0.25,
+      "live": false
+    },
+    {
+      "name": "SARIMA",
+      "mae": 29.4225,
+      "rmse": 36.1094,
+      "r2": 0.4567,
+      "improvement_vs_baseline": 28.58,
+      "live": true
+    },
+    {
+      "name": "SARIMA+TDA",
+      "mae": 30.5655,
+      "rmse": 36.4237,
+      "r2": 0.4472,
+      "improvement_vs_baseline": 25.8,
+      "live": false
+    }
+  ]
+}
