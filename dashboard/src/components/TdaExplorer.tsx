@@ -72,7 +72,7 @@ export default function TdaExplorer({ data }: { data: TdaData }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <PersistenceDiagram subperiod={active} />
         <div className="flex flex-col gap-2">
-          <EmbeddingScene subperiod={active} revealedCount={revealedCount} />
+          <EmbeddingScene key={active.id} subperiod={active} revealedCount={revealedCount} />
           <PriceSparkline prices={active.prices} revealedCount={revealedCount} totalPoints={totalPoints} />
           <button
             onClick={handleReplay}
