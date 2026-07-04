@@ -20,7 +20,7 @@ export default function SubperiodComparison({ data }: { data: TdaData }) {
             <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
             <XAxis dataKey="label" tick={{ fontSize: 11 }} />
             <YAxis tick={{ fontSize: 11 }} />
-            <Tooltip />
+            <Tooltip formatter={(value) => [(typeof value === "number" ? value.toFixed(3) : value), "Max H₁ persistence"]} />
             <Bar dataKey="max_h1_persistence" radius={[8, 8, 0, 0]}>
               {rows.map((_, i) => (
                 <Cell key={i} fill={COLORS[i % COLORS.length]} />

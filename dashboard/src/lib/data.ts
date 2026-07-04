@@ -1,4 +1,4 @@
-import type { ForecastData, LeaderboardData, TdaData } from "./types";
+import type { ForecastData, LeaderboardData, TdaData, PredictionRecord } from "./types";
 
 async function loadJson<T>(path: string): Promise<T> {
   const response = await fetch(path);
@@ -18,4 +18,8 @@ export function loadLeaderboard(): Promise<LeaderboardData> {
 
 export function loadTda(): Promise<TdaData> {
   return loadJson<TdaData>("/data/tda.json");
+}
+
+export function loadPredictionTrackRecord(): Promise<PredictionRecord[]> {
+  return loadJson<PredictionRecord[]>("/data/prediction_track_record.json");
 }

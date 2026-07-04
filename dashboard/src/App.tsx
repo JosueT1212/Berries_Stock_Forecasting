@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { loadForecast, loadLeaderboard, loadTda } from "./lib/data";
-import type { ForecastData, LeaderboardData, TdaData } from "./lib/types";
+import { loadForecast, loadLeaderboard, loadTda, loadPredictionTrackRecord } from "./lib/data";
+import type { ForecastData, LeaderboardData, TdaData, PredictionRecord } from "./lib/types";
+import { resolveAccuracy } from "./lib/accuracy";
 import StatTile from "./components/StatTile";
 import ForecastChart from "./components/ForecastChart";
 import Leaderboard from "./components/Leaderboard";
@@ -26,15 +27,17 @@ export default function App() {
   const [forecast, setForecast] = useState<ForecastData | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardData | null>(null);
   const [tda, setTda] = useState<TdaData | null>(null);
+  const [trackRecord, setTrackRecord] = useState<PredictionRecord[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [section, setSection] = useState<Section>("forecast");
 
   useEffect(() => {
-    Promise.all([loadForecast(), loadLeaderboard(), loadTda()])
-      .then(([f, l, t]) => {
+    Promise.all([loadForecast(), loadLeaderboard(), loadTda(), loadPredictionTrackRecord()])
+      .then(([f, l, t, tr]) => {
         setForecast(f);
         setLeaderboard(l);
         setTda(t);
+        setTrackRecord(tr);
       })
       .catch((err) => setError(String(err)));
   }, []);
@@ -43,12 +46,17 @@ export default function App() {
     return <div className="p-8 text-red-500">Failed to load dashboard data: {error}</div>;
   }
 
-  if (!forecast || !leaderboard || !tda) {
+  if (!forecast || !leaderboard || !tda || !trackRecord) {
     return <div className="p-8 text-gray-400">Loading dashboard...</div>;
   }
 
   const latest = forecast.history[forecast.history.length - 1];
   const next = forecast.forecast[0];
+  const resolvedAccuracy = resolveAccuracy(trackRecord, forecast.history).slice(-6);
+  const avgErrorPct =
+    resolvedAccuracy.length > 0
+      ? resolvedAccuracy.reduce((sum, r) => sum + Math.abs(r.errorPct), 0) / resolvedAccuracy.length
+      : null;
 
   return (
     <div className="min-h-screen max-w-6xl mx-auto p-6 md:p-10 flex flex-col gap-6">
@@ -64,10 +72,15 @@ export default function App() {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatTile label="Latest Actual" value={latest.actual.toFixed(1)} sublabel={latest.date} />
         <StatTile label="Next Month Forecast" value={next.value.toFixed(1)} sublabel={next.date} />
         <StatTile label="Live Model MAE" value={forecast.metrics.mae.toFixed(2)} sublabel="SARIMA, backtest" />
+        <StatTile
+          label="Recent Accuracy"
+          value={avgErrorPct === null ? "—" : `${avgErrorPct.toFixed(1)}%`}
+          sublabel={avgErrorPct === null ? "Not enough data yet" : `avg error, last ${resolvedAccuracy.length} mo`}
+        />
       </div>
 
       <nav className="flex gap-2 border-b border-gray-200 dark:border-white/10 pb-2">
@@ -92,7 +105,7 @@ export default function App() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
       >
-        {section === "forecast" && <ForecastChart data={forecast} />}
+        {section === "forecast" && <ForecastChart data={forecast} trackRecord={trackRecord} />}
         {section === "leaderboard" && <Leaderboard data={leaderboard} />}
         {section === "tda" && <TdaExplorer data={tda} />}
         {section === "subperiods" && <SubperiodComparison data={tda} />}

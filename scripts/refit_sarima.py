@@ -17,6 +17,8 @@ FROZEN_MODELS = [
     {"name": "RF + TDA", "mae": 41.0917, "rmse": 52.0403, "r2": -0.1284, "improvement_vs_baseline": 0.25, "live": False},
     {"name": "SARIMA", "mae": 29.4225, "rmse": 36.1094, "r2": 0.4567, "improvement_vs_baseline": 28.58, "live": True},
     {"name": "SARIMA+TDA", "mae": 30.5655, "rmse": 36.4237, "r2": 0.4472, "improvement_vs_baseline": 25.80, "live": False},
+    {"name": "LSTM+TDA", "mae": 29.4890, "rmse": 37.5017, "r2": 0.5687, "improvement_vs_baseline": 28.41, "live": False},
+    {"name": "LSTM+TDA v2+Exog+Attention", "mae": 29.1069, "rmse": 38.6295, "r2": 0.5424, "improvement_vs_baseline": 29.34, "live": False},
 ]
 
 
@@ -110,11 +112,37 @@ def update_leaderboard(leaderboard_path: str, live_metrics: dict) -> dict:
     }
 
 
+def append_prediction_record(record_path: str, forecast_point: dict, made_on: str) -> list[dict]:
+    if os.path.exists(record_path):
+        with open(record_path) as f:
+            records = json.load(f)  # raises json.JSONDecodeError on corrupted content, by design
+    else:
+        records = []
+
+    target_date = forecast_point["date"]
+    if any(r["target_date"] == target_date for r in records):
+        return records  # idempotent: first prediction for a month wins, reruns don't overwrite
+
+    records.append({
+        "target_date": target_date,
+        "made_on": made_on,
+        "predicted": forecast_point["value"],
+        "lower": forecast_point["lower"],
+        "upper": forecast_point["upper"],
+    })
+
+    with open(record_path, "w") as f:
+        json.dump(records, f, indent=2)
+
+    return records
+
+
 def main() -> int:
     repo_root = os.path.join(os.path.dirname(__file__), "..")
     csv_path = os.path.abspath(os.path.join(repo_root, "data", "input", "WPUSI01102B.csv"))
     forecast_path = os.path.abspath(os.path.join(repo_root, "dashboard", "public", "data", "forecast.json"))
     leaderboard_path = os.path.abspath(os.path.join(repo_root, "dashboard", "public", "data", "leaderboard.json"))
+    record_path = os.path.abspath(os.path.join(repo_root, "dashboard", "public", "data", "prediction_track_record.json"))
 
     try:
         forecast = compute_forecast(csv_path)
@@ -129,7 +157,10 @@ def main() -> int:
     with open(leaderboard_path, "w") as f:
         json.dump(leaderboard, f, indent=2)
 
-    print(f"Wrote {forecast_path} and {leaderboard_path}")
+    made_on = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    append_prediction_record(record_path, forecast["forecast"][0], made_on=made_on)
+
+    print(f"Wrote {forecast_path}, {leaderboard_path}, and {record_path}")
     return 0
 
 

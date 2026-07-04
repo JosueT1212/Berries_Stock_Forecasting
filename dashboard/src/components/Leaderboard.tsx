@@ -19,7 +19,7 @@ export default function Leaderboard({ data }: { data: LeaderboardData }) {
           {sorted.map((m) => (
             <tr
               key={m.name}
-              className={`border-b border-gray-100 dark:border-white/5 ${
+              className={`border-b border-gray-100 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors ${
                 m.live ? "bg-accent/10 font-medium" : ""
               }`}
             >
